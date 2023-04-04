@@ -5,6 +5,9 @@ install: FORCE
 		exit 1; \
 	fi
 
+	# Kill any active instances.
+	-pkill minClock
+
 	rm -rf ~/.local/minClock
 	mkdir ~/.local/minClock
 

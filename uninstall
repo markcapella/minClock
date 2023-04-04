@@ -1,4 +1,5 @@
 uninstall: FORCE
+	# Kill any active instances.
 	-pkill minClock
 
 	rm -rf ~/.local/minClock
