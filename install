@@ -1,4 +1,10 @@
 install: FORCE
+	@if [ ! -f "minClock" ]; then \
+	    echo "Executable not found !"; \
+		echo "---> Did you run make yet?"; \
+		exit 1; \
+	fi
+
 	rm -rf ~/.local/minClock
 	mkdir ~/.local/minClock
 
