@@ -1,0 +1,18 @@
+install: FORCE
+	rm -rf ~/.local/minClock
+	mkdir ~/.local/minClock
+
+	cp 'minClock' ~/.local/minClock/
+	chmod +x ~/.local/minClock/minClock
+
+	cp 'minClock.svg' ~/.local/minClock/
+	cp 'preMinClock.svg'  ~/.local/minClock/
+	cp 'postMinClock.svg'  ~/.local/minClock/
+
+	ln -f 'minClock.svg' ~/.local/share/icons/hicolor/48x48/apps/minClock.svg
+
+	cp 'minClock.desktop' ~/Desktop
+
+	@echo "Install Done !"
+
+FORCE: ;

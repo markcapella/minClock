@@ -1,0 +1,12 @@
+uninstall: FORCE
+	-pkill minClock
+
+	rm -rf ~/.local/minClock
+
+	rm -f ~/.local/share/icons/hicolor/48x48/apps/minClock.svg
+
+	rm -f ~/Desktop/minClock.desktop
+
+	@echo "Uninstall Done !"
+
+FORCE: ;
