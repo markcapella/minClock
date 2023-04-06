@@ -18,6 +18,10 @@ install: FORCE
 	cp 'preMinClock.svg'  ~/.local/minClock/
 	cp 'postMinClock.svg'  ~/.local/minClock/
 
+	cp 'okButton.png'  ~/.local/minClock/
+	cp 'cancelButton.png'  ~/.local/minClock/
+	cp 'alarmBeep.wav'  ~/.local/minClock/
+
 	ln -f 'minClock.svg' ~/.local/share/icons/hicolor/48x48/apps/minClock.svg
 
 	cp 'minClock.desktop' ~/Desktop
