@@ -12,7 +12,7 @@ endif
 	rm -rf /usr/local/minClock
 
 	rm -f /usr/share/applications/minclock.desktop
-
+	rm -f /usr/share/icons/hicolor/48x48/apps/minClock.png
 	rm -f /usr/local/bin/minClock
 
 	sudo -u ${SUDO_USER} \

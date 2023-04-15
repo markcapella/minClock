@@ -4,7 +4,7 @@ Comment=MinClock dev utility
 
 Path=/usr/local/minClock
 Exec=minClock
-Icon=/home/mark/.local/minClock/minClock.svg
+Icon=/usr/share/icons/hicolor/48x48/apps/minClock.png
 
 Terminal=false
 Type=Application

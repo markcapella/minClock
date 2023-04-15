@@ -18,6 +18,7 @@ endif
 	cp 'alarmBeep.wav'  /usr/local/minClock/
 
 	cp 'minclock.desktop' /usr/share/applications/
+	cp minClock.png /usr/share/icons/hicolor/48x48/apps/
 
 	cp 'minClock' /usr/local/bin/
 	chmod +x /usr/local/bin/minClock
