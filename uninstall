@@ -14,7 +14,9 @@ endif
 	rm -f /usr/share/applications/minclock.desktop
 
 	rm -f /usr/local/bin/minClock
-	rm -rf /home/${SUDO_USER}/.local/minClock
+
+	sudo -u ${SUDO_USER} \
+		rm -rf /home/${SUDO_USER}/.local/minClock
 
 	@echo
 	@echo "Uninstall Done !"

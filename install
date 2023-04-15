@@ -22,6 +22,11 @@ endif
 	cp 'minClock' /usr/local/bin/
 	chmod +x /usr/local/bin/minClock
 
+	sudo -u ${SUDO_USER} \
+		mkdir -p /home/${SUDO_USER}/.local/minClock
+	sudo -u ${SUDO_USER} \
+		cp 'minClock.svg' /home/${SUDO_USER}/.local/minClock/
+
 	@echo
 	@echo "Install Done !"
 	@echo
