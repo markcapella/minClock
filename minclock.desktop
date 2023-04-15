@@ -6,7 +6,7 @@ Path=/usr/local/minClock
 Exec=minClock
 Icon=/home/mark/.local/minClock/minClock.svg
 
-Terminal=true
+Terminal=false
 Type=Application
 StartupNotify=true
 
