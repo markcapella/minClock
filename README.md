@@ -13,9 +13,9 @@
 ###    CD into source repo.
 
     make
-    make -f install
+    sudo make -f install
 
-    make -f uninstall
+    sudo make -f uninstall
     make clean
 
 
