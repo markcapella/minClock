@@ -1,6 +1,5 @@
 [Desktop Entry]
 Name=MinClock
-Comment=MinClock dev utility
 
 Path=/usr/local/minClock
 Exec=minClock
@@ -11,4 +10,4 @@ Type=Application
 StartupNotify=true
 
 OnlyShowIn=GNOME;Unity;Pantheon;KDE;
-Categories=GNOME;GTK;Development;
+Categories=GNOME;GTK;Utility;

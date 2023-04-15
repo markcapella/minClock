@@ -21,5 +21,9 @@
 
 ## Usage
 
-    Double click the icon that's added to your desktop.
- 
+    Find and click the icon that's added to your systems menu.
+
+
+### markcapella@twcny.rr.com Rocks !
+
+        Yeah I do.
