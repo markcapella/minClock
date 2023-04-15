@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=minClock
-Type=Application
-Terminal=false
-
-Exec=~/.local/minClock/minClock
-Path=~/.local/minClock
-Icon=minClock.svg

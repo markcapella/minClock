@@ -1,12 +1,13 @@
 #ifndef BASE_WIDGET_H
 #define BASE_WIDGET_H
 
+#include <QWidget>
+#include <QPoint>
+
+
 // *****************************************************************
 // *** BaseWidget with resize override for app window presistence***
 // *****************************************************************
-
-#include <QWidget>
-#include <QPoint>
 
 class BaseWidget : public QWidget {
     Q_OBJECT
@@ -22,7 +23,7 @@ class BaseWidget : public QWidget {
         int getWindowPosYAttr();
 
     private:
-        const char* INI_FILENAME = "/minClock.ini";
+        QString iniPath;
 
     protected:
         void resizeEvent(QResizeEvent *event);

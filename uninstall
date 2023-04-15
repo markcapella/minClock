@@ -1,13 +1,23 @@
 uninstall: FORCE
-	# Kill any active instances.
-	-pkill minClock
+ifneq ($(shell id -u), 0)
+	@echo "You must be root to perform this action. Please re-run with:"
+	@echo "   sudo make uninstall"
+	@echo
+	@exit 1;
+endif
 
-	rm -rf ~/.local/minClock
+	@echo
+	@echo "sudo make uninstall: starts ..."
 
-	rm -f ~/.local/share/icons/hicolor/48x48/apps/minClock.svg
+	rm -rf /usr/local/minClock
 
-	rm -f ~/Desktop/minClock.desktop
+	rm -f /usr/share/applications/minclock.desktop
 
+	rm -f /usr/local/bin/minClock
+	rm -rf /home/${SUDO_USER}/.local/minClock
+
+	@echo
 	@echo "Uninstall Done !"
+	@echo
 
 FORCE: ;

@@ -18,12 +18,13 @@ using namespace std;
 
 BaseWidget::BaseWidget(QWidget *parent) :
     QWidget(parent) {
+
+    iniPath = std::getenv("HOME") + iniPath.append("/.local/minClock/minClock.ini");
 }
 
 int
 BaseWidget::getWindowHeightAttr() {
-    const QString winIniFile =
-        QApplication::applicationDirPath() + INI_FILENAME;
+    const QString winIniFile = iniPath;
     QSettings* settings = new QSettings(winIniFile, QSettings::IniFormat);
 
     return settings->value("windowHeight", 100).toInt();
@@ -31,8 +32,7 @@ BaseWidget::getWindowHeightAttr() {
 
 int
 BaseWidget::getWindowWidthAttr() {
-    const QString winIniFile =
-        QApplication::applicationDirPath() + INI_FILENAME;
+    const QString winIniFile = iniPath;
     QSettings* settings = new QSettings(winIniFile, QSettings::IniFormat);
 
     return settings->value("windowWidth", 285).toInt();
@@ -40,8 +40,7 @@ BaseWidget::getWindowWidthAttr() {
 
 int
 BaseWidget::getWindowPosXAttr() {
-    const QString winIniFile =
-        QApplication::applicationDirPath() + INI_FILENAME;
+    const QString winIniFile = iniPath;
     QSettings* settings = new QSettings(winIniFile, QSettings::IniFormat);
 
     return settings->value("windowPosX", 100).toInt();
@@ -49,8 +48,7 @@ BaseWidget::getWindowPosXAttr() {
 
 int
 BaseWidget::getWindowPosYAttr() {
-    const QString winIniFile =
-        QApplication::applicationDirPath() + INI_FILENAME;
+    const QString winIniFile = iniPath;
     QSettings* settings = new QSettings(winIniFile, QSettings::IniFormat);
 
     return settings->value("windowPosY", 100).toInt();
@@ -58,8 +56,7 @@ BaseWidget::getWindowPosYAttr() {
 
 void
 BaseWidget::resizeEvent(QResizeEvent* event) {
-    const QString winIniFile =
-        QApplication::applicationDirPath() + INI_FILENAME;
+    const QString winIniFile = iniPath;
     QSettings* settings = new QSettings(winIniFile, QSettings::IniFormat);
 
     QString height, width;
@@ -74,8 +71,7 @@ BaseWidget::resizeEvent(QResizeEvent* event) {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void
 BaseWidget::moveEvent(QMoveEvent* event) {
-    const QString winIniFile =
-        QApplication::applicationDirPath() + INI_FILENAME;
+    const QString winIniFile = iniPath;
     QSettings* settings = new QSettings(winIniFile, QSettings::IniFormat);
 
     QString x, y;

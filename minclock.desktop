@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=MinClock
+Comment=MinClock dev utility
+
+Path=/usr/local/minClock
+Exec=minClock
+Icon=/home/mark/.local/minClock/minClock.svg
+
+Terminal=true
+Type=Application
+StartupNotify=true
+
+OnlyShowIn=GNOME;Unity;Pantheon;KDE;
+Categories=GNOME;GTK;Development;

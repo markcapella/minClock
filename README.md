@@ -1,6 +1,6 @@
 # minClock
 
-!['minClock](https://github.com/markcapella/minClock/blob/main/assets/images/screenshot.png)
+!['minClock'](https://github.com/markcapella/minClock/blob/main/assets/images/screenshot.png)
 
 
 ## Description

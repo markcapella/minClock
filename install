@@ -1,31 +1,29 @@
 install: FORCE
-	@if [ ! -f "minClock" ]; then \
-	    echo "Executable not found !"; \
-		echo "---> Did you run make yet?"; \
-		exit 1; \
-	fi
+ifneq ($(shell id -u), 0)
+	@echo "You must be root to perform this action. Please re-run with:"
+	@echo "   sudo make install"
+	@echo
+	@exit 1;
+endif
 
-	# Kill any active instances.
-	-pkill minClock
+	@echo
+	@echo "sudo make install: starts ..."
 
-	rm -rf ~/.local/minClock
-	mkdir ~/.local/minClock
+	mkdir -p /usr/local/minClock
 
-	cp 'minClock' ~/.local/minClock/
-	chmod +x ~/.local/minClock/minClock
+	cp 'preMinClock.svg'  /usr/local/minClock/
+	cp 'postMinClock.svg'  /usr/local/minClock/
+	cp 'okButton.png'  /usr/local/minClock/
+	cp 'cancelButton.png'  /usr/local/minClock/
+	cp 'alarmBeep.wav'  /usr/local/minClock/
 
-	cp 'minClock.svg' ~/.local/minClock/
-	cp 'preMinClock.svg'  ~/.local/minClock/
-	cp 'postMinClock.svg'  ~/.local/minClock/
+	cp 'minclock.desktop' /usr/share/applications/
 
-	cp 'okButton.png'  ~/.local/minClock/
-	cp 'cancelButton.png'  ~/.local/minClock/
-	cp 'alarmBeep.wav'  ~/.local/minClock/
+	cp 'minClock' /usr/local/bin/
+	chmod +x /usr/local/bin/minClock
 
-	ln -f 'minClock.svg' ~/.local/share/icons/hicolor/48x48/apps/minClock.svg
-
-	cp 'minClock.desktop' ~/Desktop
-
+	@echo
 	@echo "Install Done !"
+	@echo
 
 FORCE: ;

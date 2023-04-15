@@ -32,8 +32,6 @@ using namespace std;
 using STRING = std::string;
 
 /* Global consts */
-const char* APP_ICON = "minClock.svg";
-const char* INI_FILENAME = "/minClock.ini";
 const float WINDOW_OPACITY = .7;
 
 const string MONTH_NAMES[] = {
@@ -54,6 +52,9 @@ const QString ALARM_GRADIENT_RED = "background-color: qlineargradient"
 // *****************************************************************
 // *** Global var stubs                                          ***
 // *****************************************************************
+
+QString iniPath;
+STRING iconPath;
 
 BaseWidget* windowWidget;
 
@@ -88,7 +89,7 @@ void removeAlarmEdit_Widget();
 void removeAlarmEdit_CancelButton();
 void removeAlarmEdit_OkButton();
 
-void updateClockFace();
+void createClockFaceIcon();
 
 // *****************************************************************
 // *** Support methods                                           ***
@@ -131,7 +132,7 @@ STRING getCurrentTimeDate() {
 // *****************************************************************
 
 STRING getAlarmTime() {
-    const QString appIniFile = QApplication::applicationDirPath() + INI_FILENAME;
+    const QString appIniFile = iniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     const QString qTime = settings->value("alarmTime", "").toString();
@@ -140,14 +141,14 @@ STRING getAlarmTime() {
 }
 
 void setAlarmTime(const STRING& time) {
-    const QString appIniFile = QApplication::applicationDirPath() + INI_FILENAME;
+    const QString appIniFile = iniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     settings->setValue("alarmTime", time.c_str());
 }
 
 STRING getAlarmDate() {
-    const QString appIniFile = QApplication::applicationDirPath() + INI_FILENAME;
+    const QString appIniFile = iniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     const QString qDate = settings->value("alarmDate", "").toString();
@@ -156,7 +157,7 @@ STRING getAlarmDate() {
 }
 
 void setAlarmDate(const STRING& date) {
-    const QString appIniFile = QApplication::applicationDirPath() + INI_FILENAME;
+    const QString appIniFile = iniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     settings->setValue("alarmDate", date.c_str());
@@ -300,7 +301,7 @@ void removeAlarmEdit_OkButton() {
 // *** Clock face real-time rendering                            ***
 // *****************************************************************
 
-void updateClockFace() {
+void createClockFaceIcon() {
     // Set off the icon while we update it.
     qApp->setWindowIcon(QIcon());
 
@@ -326,14 +327,11 @@ void updateClockFace() {
     const string minSVG = "    <rect x=\"23\" y=\"10\" width=\"2\" height=\"18\""
         " transform=\"rotate(" + std::to_string(minRot) + ", 24, 24)\"/>";
 
-    // Pre-delete temp file.
-    std::ignore = system("rm tempMinClock.svg 1>/dev/null 2>/dev/null");
-
     // Copy preMinClock.svg to tempMinClock.svg.
-    std::ignore = system("cat preMinClock.svg > tempMinClock.svg");
+    std::ignore = system("cat preMinClock.svg > ~/.local/minClock/minClock.svg");
 
-    // Write custome hour and minute hands SVG insts.
-    FILE* tempMinClock = fopen("tempMinClock.svg", "a");
+    // Write custom hour and minute hands SVG insts.
+    FILE* tempMinClock = fopen(iconPath.c_str(), "a");
     fprintf(tempMinClock, hourSVG.c_str(), "");
     fprintf(tempMinClock, "\n");
     fprintf(tempMinClock, minSVG.c_str(), "");
@@ -341,13 +339,10 @@ void updateClockFace() {
     fclose(tempMinClock);
 
     // Copy postMinClock.svg to tempMinClock.svg.
-    std::ignore = system("cat postMinClock.svg >> tempMinClock.svg");
-
-    // Delete current minClock.svg & replace with tempMinClock.svg.
-    std::ignore = system("cp tempMinClock.svg minClock.svg");
+    std::ignore = system("cat postMinClock.svg >> ~/.local/minClock/minClock.svg");
 
     // Set on the icon after we update it.
-    qApp->setWindowIcon(QIcon(APP_ICON));
+    qApp->setWindowIcon(QIcon(iconPath.c_str()));
 }
 
 // *****************************************************************
@@ -357,14 +352,20 @@ void updateClockFace() {
 int main(int argc, char* argv[]) {
     /* Create and setup app */
     QApplication mainApp(argc, argv);
-    mainApp.setWindowIcon(QIcon(APP_ICON));
+
+    // Pre-define local temp folder, create initial app Icon
+    std::ignore = system("mkdir -p ~/.local/minClock");
+
+    iconPath = std::getenv("HOME") + iconPath.append("/.local/minClock/minClock.svg");
+    iniPath = std::getenv("HOME") + iniPath.append("/.local/minClock/minClock.ini");
+    createClockFaceIcon();
+    mainApp.setWindowIcon(QIcon(iconPath.c_str()));
 
     /* Build main form */
     windowWidget = new BaseWidget();
     windowWidget->setWindowTitle(" ");
     windowWidget->setWindowFlags(Qt::WindowStaysOnTopHint);
     windowWidget->setWindowOpacity(WINDOW_OPACITY);
-    //windowWidget->setStyleSheet("background-color: yellow;");
 
     parentLayout = new QVBoxLayout();
     timeLayout = new QHBoxLayout();
@@ -413,14 +414,14 @@ int main(int argc, char* argv[]) {
     dateTime_updateTimer->start();
 
     /* Initial Clock-hands Update */
-    updateClockFace();
+    createClockFaceIcon();
 
     /* Set Clock-hands Update Timer on 1 minute Interval */
     QTimer* clockHands_updateTimer = new QTimer();
     clockHands_updateTimer->setInterval(1000 * 60);
     QObject::connect(clockHands_updateTimer, &QTimer::timeout, [=]() {
         /* Update clock hands each minute */
-        updateClockFace();
+        createClockFaceIcon();
     });
     clockHands_updateTimer->start();
 
