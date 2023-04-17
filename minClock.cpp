@@ -32,7 +32,12 @@ using namespace std;
 using STRING = std::string;
 
 /* Global consts */
+const STRING mDeskSession = std::getenv("XDG_SESSION_DESKTOP");
+
 const float WINDOW_OPACITY = .7;
+
+const int GNOME_ICON_HEIGHT = 24;
+const int GNOME_ICON_WIDTH = 24;
 
 const string MONTH_NAMES[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -48,28 +53,27 @@ const QString ALARM_GRADIENT_RED = "background-color: qlineargradient"
     "(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 white, stop: 1 red);"
     "border-style: solid; border-color: black; border-width: 1px; border-radius: 10px;";
 
-
 // *****************************************************************
 // *** Global var stubs                                          ***
 // *****************************************************************
 
-QString iniPath;
-STRING iconPath;
+QString mIniPath;
+STRING mIconPath;
+QIcon* mIconImage;
+QLabel* mGNOMEIconLabel;
 
-BaseWidget* windowWidget;
+BaseWidget* mWindowWidget;
 
-QVBoxLayout* parentLayout;
+QVBoxLayout* mParentLayout;
+    QHBoxLayout* mTimeLayout;
+        QLabel* mTimeLabel;
+        QLabel* mDateLabel;
 
-QHBoxLayout* timeLayout;
-QLabel* timeLabel;
-QLabel* dateLabel;
-
-QHBoxLayout* alarmLayout;
-QPushButton* alarmButton;
-QDateTimeEdit* alarmEdit;
-QPushButton* editCancel;
-QPushButton* editOk;
-
+    QHBoxLayout* mAlarmLayout;
+        QPushButton* mAlarmButton;
+        QDateTimeEdit* mAlarmEdit;
+        QPushButton* mEditCancelButton;
+        QPushButton* mEditOkButton;
 
 // *****************************************************************
 // *** Global method stubs                                       ***
@@ -89,7 +93,7 @@ void removeAlarmEdit_Widget();
 void removeAlarmEdit_CancelButton();
 void removeAlarmEdit_OkButton();
 
-void createClockFaceIcon();
+void updateClockFaceIcon();
 
 // *****************************************************************
 // *** Support methods                                           ***
@@ -132,7 +136,7 @@ STRING getCurrentTimeDate() {
 // *****************************************************************
 
 STRING getAlarmTime() {
-    const QString appIniFile = iniPath;
+    const QString appIniFile = mIniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     const QString qTime = settings->value("alarmTime", "").toString();
@@ -141,14 +145,14 @@ STRING getAlarmTime() {
 }
 
 void setAlarmTime(const STRING& time) {
-    const QString appIniFile = iniPath;
+    const QString appIniFile = mIniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     settings->setValue("alarmTime", time.c_str());
 }
 
 STRING getAlarmDate() {
-    const QString appIniFile = iniPath;
+    const QString appIniFile = mIniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     const QString qDate = settings->value("alarmDate", "").toString();
@@ -157,7 +161,7 @@ STRING getAlarmDate() {
 }
 
 void setAlarmDate(const STRING& date) {
-    const QString appIniFile = iniPath;
+    const QString appIniFile = mIniPath;
     QSettings* settings = new QSettings(appIniFile, QSettings::IniFormat);
 
     settings->setValue("alarmDate", date.c_str());
@@ -172,39 +176,39 @@ STRING getAlarmTimeDate() {
 // *****************************************************************
 
 void addAlarmButton_Layout() {
-    alarmButton = new QPushButton();
+    mAlarmButton = new QPushButton();
 
-    QObject::connect(alarmButton, &QPushButton::clicked, [=]() {
+    QObject::connect(mAlarmButton, &QPushButton::clicked, [=]() {
         if (getAlarmTime().empty()) {
             removeAlarmButton_Layout();
             addAlarmEdit_Layout();
         } else {
             setAlarmTime("");
             setAlarmDate("");
-            alarmButton->setText("Alarm");
-            alarmButton->setStyleSheet(ALARM_GRADIENT_GRAY);
+            mAlarmButton->setText("Alarm");
+            mAlarmButton->setStyleSheet(ALARM_GRADIENT_GRAY);
         }
     });
 
     // Kludge to match alarm Button and Edit layout heights
-    alarmButton->setFixedHeight(44);
+    mAlarmButton->setFixedHeight(44);
 
     // Display button styling
     if (getAlarmTime().empty()) {
-        alarmButton->setText("Alarm");
-        alarmButton->setStyleSheet(ALARM_GRADIENT_GRAY);
+        mAlarmButton->setText("Alarm");
+        mAlarmButton->setStyleSheet(ALARM_GRADIENT_GRAY);
     } else {
-        alarmButton->setText(getAlarmTimeDate().c_str());
-        alarmButton->setStyleSheet(ALARM_GRADIENT_YELLOW);
+        mAlarmButton->setText(getAlarmTimeDate().c_str());
+        mAlarmButton->setStyleSheet(ALARM_GRADIENT_YELLOW);
     }
 
-    alarmLayout->addWidget(alarmButton);
+    mAlarmLayout->addWidget(mAlarmButton);
 }
 
 void removeAlarmButton_Layout() {
-    QObject::disconnect(alarmButton, &QPushButton::clicked, 0, 0);
-    alarmLayout->removeWidget(alarmButton);
-    delete alarmButton;
+    QObject::disconnect(mAlarmButton, &QPushButton::clicked, 0, 0);
+    mAlarmLayout->removeWidget(mAlarmButton);
+    delete mAlarmButton;
 }
 
 // *****************************************************************
@@ -218,34 +222,34 @@ void addAlarmEdit_Layout() {
 }
 
 void addAlarmEdit_Widget() {
-    alarmEdit = new QDateTimeEdit();
-    alarmEdit->setTime(QTime::currentTime());
-    alarmEdit->setDate(QDate::currentDate());
+    mAlarmEdit = new QDateTimeEdit();
+    mAlarmEdit->setTime(QTime::currentTime());
+    mAlarmEdit->setDate(QDate::currentDate());
 
-    alarmLayout->addWidget(alarmEdit);
+    mAlarmLayout->addWidget(mAlarmEdit);
 }
 
 void addAlarmEdit_CancelButton() {
-    editCancel = new QPushButton();
-    editCancel->setIcon(QIcon("cancelButton.png"));
+    mEditCancelButton = new QPushButton();
+    mEditCancelButton->setIcon(QIcon("cancelButton.png"));
 
-    alarmLayout->addWidget(editCancel);
+    mAlarmLayout->addWidget(mEditCancelButton);
 
-    QObject::connect(editCancel, &QPushButton::clicked, [=]() {
+    QObject::connect(mEditCancelButton, &QPushButton::clicked, [=]() {
         removeAlarmEdit_Layout();
         addAlarmButton_Layout();
     });
 }
 
 void addAlarmEdit_OkButton() {
-    editOk = new QPushButton();
-    editOk->setIcon(QIcon("okButton.png"));
+    mEditOkButton = new QPushButton();
+    mEditOkButton->setIcon(QIcon("okButton.png"));
 
-    alarmLayout->addWidget(editOk);
+    mAlarmLayout->addWidget(mEditOkButton);
 
-    QObject::connect(editOk, &QPushButton::clicked, [=]() {
-        /* Store alarm time from edit windowWidget */
-        const QTime editTime = alarmEdit->time();
+    QObject::connect(mEditOkButton, &QPushButton::clicked, [=]() {
+        /* Store alarm time from edit mWindowWidget */
+        const QTime editTime = mAlarmEdit->time();
         const STRING editHour = std::to_string(editTime.hour());
         const STRING editMinute = std::to_string(editTime.minute());
         const STRING editTimeString =
@@ -254,8 +258,8 @@ void addAlarmEdit_OkButton() {
 
         setAlarmTime(editTimeString);
 
-        /* Store alarm time from date windowWidget */
-        const QDate editDate = alarmEdit->date();
+        /* Store alarm time from date mWindowWidget */
+        const QDate editDate = mAlarmEdit->date();
         const STRING editDateString =
             MONTH_NAMES[editDate.month() - 1] + " " +
             std::to_string(editDate.day());
@@ -279,29 +283,29 @@ void removeAlarmEdit_Layout() {
 }
 
 void removeAlarmEdit_Widget() {
-    alarmLayout->removeWidget(alarmEdit);
-    delete alarmEdit;
+    mAlarmLayout->removeWidget(mAlarmEdit);
+    delete mAlarmEdit;
 }
 
 void removeAlarmEdit_CancelButton() {
-    QObject::disconnect(editCancel, &QPushButton::clicked, 0, 0);
+    QObject::disconnect(mEditCancelButton, &QPushButton::clicked, 0, 0);
 
-    alarmLayout->removeWidget(editCancel);
-    delete editCancel;
+    mAlarmLayout->removeWidget(mEditCancelButton);
+    delete mEditCancelButton;
 }
 
 void removeAlarmEdit_OkButton() {
-    QObject::disconnect(editOk, &QPushButton::clicked, 0, 0);
+    QObject::disconnect(mEditOkButton, &QPushButton::clicked, 0, 0);
 
-    alarmLayout->removeWidget(editOk);
-    delete editOk;
+    mAlarmLayout->removeWidget(mEditOkButton);
+    delete mEditOkButton;
 }
 
 // *****************************************************************
 // *** Clock face real-time rendering                            ***
 // *****************************************************************
 
-void createClockFaceIcon() {
+void updateClockFaceIcon() {
     // Set off the icon while we update it.
     qApp->setWindowIcon(QIcon());
 
@@ -331,7 +335,7 @@ void createClockFaceIcon() {
     std::ignore = system("cat preMinClock.svg > ~/.local/minClock/minClock.svg");
 
     // Write custom hour and minute hands SVG insts.
-    FILE* tempMinClock = fopen(iconPath.c_str(), "a");
+    FILE* tempMinClock = fopen(mIconPath.c_str(), "a");
     fprintf(tempMinClock, hourSVG.c_str(), "");
     fprintf(tempMinClock, "\n");
     fprintf(tempMinClock, minSVG.c_str(), "");
@@ -342,7 +346,23 @@ void createClockFaceIcon() {
     std::ignore = system("cat postMinClock.svg >> ~/.local/minClock/minClock.svg");
 
     // Set on the icon after we update it.
-    qApp->setWindowIcon(QIcon(iconPath.c_str()));
+    mIconImage = new QIcon(mIconPath.c_str());
+    qApp->setWindowIcon(*mIconImage);
+
+    // Add Icon to Window contents as GNOME doesn't use it in the titlebar.
+    if (mDeskSession.find("GNOME") != std::string::npos) {
+        mTimeLayout->removeWidget(mGNOMEIconLabel);
+        mTimeLayout->removeWidget(mTimeLabel);
+        mTimeLayout->removeWidget(mDateLabel);
+
+        mGNOMEIconLabel = new QLabel();
+        QPixmap iconPixMap(mIconPath.c_str());
+        mGNOMEIconLabel->setPixmap(iconPixMap);
+
+        mTimeLayout->addWidget(mGNOMEIconLabel);
+        mTimeLayout->addWidget(mTimeLabel);
+        mTimeLayout->addWidget(mDateLabel);
+    }
 }
 
 // *****************************************************************
@@ -356,76 +376,74 @@ int main(int argc, char* argv[]) {
     // Pre-define local temp folder, create initial app Icon
     std::ignore = system("mkdir -p ~/.local/minClock");
 
-    iconPath = std::getenv("HOME") + iconPath.append("/.local/minClock/minClock.svg");
-    iniPath = std::getenv("HOME") + iniPath.append("/.local/minClock/minClock.ini");
-    createClockFaceIcon();
-    mainApp.setWindowIcon(QIcon(iconPath.c_str()));
+    mIconPath = std::getenv("HOME") + mIconPath.append("/.local/minClock/minClock.svg");
+    mIniPath = std::getenv("HOME") + mIniPath.append("/.local/minClock/minClock.ini");
 
     /* Build main form */
-    windowWidget = new BaseWidget();
-    windowWidget->setWindowTitle(" ");
-    windowWidget->setWindowFlags(Qt::WindowStaysOnTopHint);
-    windowWidget->setWindowOpacity(WINDOW_OPACITY);
+    mWindowWidget = new BaseWidget();
+    mWindowWidget->setWindowTitle(" ");
+    mWindowWidget->setWindowFlags(Qt::WindowStaysOnTopHint);
+    mWindowWidget->setWindowOpacity(WINDOW_OPACITY);
 
-    parentLayout = new QVBoxLayout();
-    timeLayout = new QHBoxLayout();
-    alarmLayout = new QHBoxLayout();
+    mParentLayout = new QVBoxLayout();
 
-    timeLabel = new QLabel();
-    timeLabel->setText(getCurrentTime().c_str());
-    timeLabel->setAlignment(Qt::AlignCenter);
-    timeLabel->setStyleSheet("font-size: 36px;");
+    mTimeLayout = new QHBoxLayout();
+    mTimeLabel = new QLabel();
+    mTimeLabel->setText(getCurrentTime().c_str());
+    mTimeLabel->setAlignment(Qt::AlignCenter);
+    mTimeLabel->setStyleSheet("font-size: 36px;");
+    mTimeLayout->addWidget(mTimeLabel);
 
-    dateLabel = new QLabel();
-    dateLabel->setText(getCurrentDate().c_str());
-    dateLabel->setAlignment(Qt::AlignCenter);
-    dateLabel->setStyleSheet("font-size: 26px; color: #4c4545");
+    mDateLabel = new QLabel();
+    mDateLabel->setText(getCurrentDate().c_str());
+    mDateLabel->setAlignment(Qt::AlignCenter);
+    mDateLabel->setStyleSheet("font-size: 26px; color: #4c4545");
+    mTimeLayout->addWidget(mDateLabel);
 
-    timeLayout->addWidget(timeLabel);
-    timeLayout->addWidget(dateLabel);
-    parentLayout->addLayout(timeLayout);
+    mParentLayout->addLayout(mTimeLayout);
 
+    mAlarmLayout = new QHBoxLayout();
     addAlarmButton_Layout();
-    parentLayout->addLayout(alarmLayout);
+    mParentLayout->addLayout(mAlarmLayout);
 
-    windowWidget->setLayout(parentLayout);
-    windowWidget->resize(
-        windowWidget->getWindowWidthAttr(),
-        windowWidget->getWindowHeightAttr());
-    windowWidget->move(
-        windowWidget->getWindowPosXAttr(),
-        windowWidget->getWindowPosYAttr());
+    mWindowWidget->setLayout(mParentLayout);
+    mWindowWidget->resize(
+        mWindowWidget->getWindowWidthAttr(),
+        mWindowWidget->getWindowHeightAttr());
+    mWindowWidget->move(
+        mWindowWidget->getWindowPosXAttr(),
+        mWindowWidget->getWindowPosYAttr());
 
     /* Set Date/time Textview Update Timer on 1 second Interval */
     QTimer* dateTime_updateTimer = new QTimer();
     dateTime_updateTimer->setInterval(1000);
     QObject::connect(dateTime_updateTimer, &QTimer::timeout, [=]() {
         /* Update time & date each second */
-        timeLabel->setText(getCurrentTime().c_str());
-        dateLabel->setText(getCurrentDate().c_str());
+        mTimeLabel->setText(getCurrentTime().c_str());
+        mDateLabel->setText(getCurrentDate().c_str());
 
         /* Alarm check, is it time ? */
         if (getAlarmTimeDate().compare(getCurrentTimeDate()) == 0) {
-            alarmButton->setText("STOP");
-            alarmButton->setStyleSheet(ALARM_GRADIENT_RED);
+            mAlarmButton->setText("STOP");
+            mAlarmButton->setStyleSheet(ALARM_GRADIENT_RED);
             QSound::play("alarmBeep.wav");
         }
     });
     dateTime_updateTimer->start();
 
     /* Initial Clock-hands Update */
-    createClockFaceIcon();
+    updateClockFaceIcon();
 
     /* Set Clock-hands Update Timer on 1 minute Interval */
     QTimer* clockHands_updateTimer = new QTimer();
     clockHands_updateTimer->setInterval(1000 * 60);
     QObject::connect(clockHands_updateTimer, &QTimer::timeout, [=]() {
         /* Update clock hands each minute */
-        createClockFaceIcon();
+        updateClockFaceIcon();
     });
     clockHands_updateTimer->start();
 
-    /* Set windowWidget size, show and exit */
-    windowWidget->show();
+    /* Set mWindowWidget size, show and exit */
+    mWindowWidget->show();
     return mainApp.exec();
 }
