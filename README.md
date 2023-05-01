@@ -5,8 +5,7 @@
 
 ## Description
 
-###    A minimally sized QT c++ app, digital clock for linux Plasma, with an alarm.
-
+###    A minimally sized QT/c++ app, digital clock for linux, with a beeping alarm.
 
 ## Installation
 
